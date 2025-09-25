@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RT60 CALCULATOR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: white;
+            color: black;
+            height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 2px solid black;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            letter-spacing: 0.1em;
+            font-weight: normal;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .control-panel {
+            width: 500px;
+            border: 2px solid black;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid black;
+        }
+
+        .dimension-group {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .dimension-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .dimension-label {
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 70px;
+            font-size: 0.85em;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 6px;
+            border: 1px solid black;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            outline: 2px solid black;
+            outline-offset: 1px;
+        }
+
+        select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid black;
+            font-family: 'Courier New', monospace;
+            background: white;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        select:focus {
+            outline: 2px solid black;
+            outline-offset: 1px;
+        }
+
+        .material-label {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            color: #666;
+        }
+
+        .material-mix {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .material-mix input {
+            width: 60px;
+        }
+
+        .material-mix select {
+            flex: 1;
+        }
+
+        .element-list {
+            margin-bottom: 15px;
+        }
+
+        .element-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 5px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+
+        .element-item input {
+            width: 50px;
+            padding: 3px;
+            font-size: 0.85em;
+        }
+
+        .element-item select {
+            width: auto;
+            padding: 3px;
+            font-size: 0.85em;
+        }
+
+        .remove-btn {
+            padding: 3px 8px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .remove-btn:hover {
+            background: #333;
+        }
+
+        .add-btn {
+            padding: 8px;
+            background: white;
+            color: black;
+            border: 1px solid black;
+            cursor: pointer;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .add-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            background: black;
+            color: white;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .calculate-btn:hover {
+            background: #333;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid black;
+        }
+
+        .results h3 {
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            letter-spacing: 0.05em;
+        }
+
+        .result-main {
+            background: black;
+            color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .result-main .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .result-main .label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.85em;
+        }
+
+        .octave-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+
+        .octave-table th,
+        .octave-table td {
+            border: 1px solid black;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .octave-table th {
+            background: black;
+            color: white;
+            font-weight: normal;
+            text-transform: uppercase;
+        }
+
+        .octave-table td {
+            background: white;
+        }
+
+        .visualization-panel {
+            flex: 1;
+            border: 2px solid black;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-width: 0;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .custom-material-input {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .custom-material-input input {
+            padding: 4px;
+            font-size: 0.8em;
+        }
+
+        .freq-label {
+            font-size: 0.7em;
+            text-align: center;
+            color: #666;
+        }
+
+        .people-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .people-input label {
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .people-input input {
+            width: 60px;
+        }
+
+        .collapsible {
+            margin-bottom: 15px;
+        }
+
+        .collapsible-header {
+            padding: 8px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .collapsible-header:hover {
+            background: #e0e0e0;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        .wall-label {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            color: #666;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RT60 REVERBERATION CALCULATOR</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="section-title">Room Dimensions & Base Materials</div>
+                
+                <div class="dimension-group">
+                    <div class="dimension-header">
+                        <span class="dimension-label">Length</span>
+                        <input type="number" id="length" value="10" min="1" max="100" step="0.1"> m
+                    </div>
+                    <div class="material-label">Wall Materials</div>
+                    <div class="material-mix">
+                        <input type="number" id="wall-percent-1" value="100" min="0" max="100" step="1">%
+                        <select id="walls-1">
+                            <option value="gypsum" selected>Gypsum Board</option>
+                            <option value="concrete">Concrete Block</option>
+                            <option value="brick">Brick</option>
+                            <option value="glass">Glass</option>
+                            <option value="wood">Wood Paneling</option>
+                            <option value="fabric">Fabric Panels</option>
+                        </select>
+                    </div>
+                    <div class="material-mix">
+                        <input type="number" id="wall-percent-2" value="0" min="0" max="100" step="1">%
+                        <select id="walls-2">
+                            <option value="none" selected>None</option>
+                            <option value="gypsum">Gypsum Board</option>
+                            <option value="concrete">Concrete Block</option>
+                            <option value="brick">Brick</option>
+                            <option value="glass">Glass</option>
+                            <option value="wood">Wood Paneling</option>
+                            <option value="fabric">Fabric Panels</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="dimension-group">
+                    <div class="dimension-header">
+                        <span class="dimension-label">Width</span>
+                        <input type="number" id="width" value="8" min="1" max="100" step="0.1"> m
+                    </div>
+                    <div class="material-label">Floor Materials</div>
+                    <div class="material-mix">
+                        <input type="number" id="floor-percent-1" value="100" min="0" max="100" step="1">%
+                        <select id="floor-1">
+                            <option value="carpet" selected>Carpet</option>
+                            <option value="hardwood">Hardwood</option>
+                            <option value="tile">Ceramic Tile</option>
+                            <option value="concrete">Concrete</option>
+                            <option value="vinyl">Vinyl/Linoleum</option>
+                        </select>
+                    </div>
+                    <div class="material-mix">
+                        <input type="number" id="floor-percent-2" value="0" min="0" max="100" step="1">%
+                        <select id="floor-2">
+                            <option value="none" selected>None</option>
+                            <option value="carpet">Carpet</option>
+                            <option value="hardwood">Hardwood</option>
+                            <option value="tile">Ceramic Tile</option>
+                            <option value="concrete">Concrete</option>
+                            <option value="vinyl">Vinyl/Linoleum</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="dimension-group" style="border-bottom: none;">
+                    <div class="dimension-header">
+                        <span class="dimension-label">Height</span>
+                        <input type="number" id="height" value="3" min="1" max="50" step="0.1"> m
+                    </div>
+                    <div class="material-label">Ceiling Material</div>
+                    <select id="ceiling">
+                        <option value="gypsum">Gypsum Board</option>
+                        <option value="acoustic_tile" selected>Acoustic Ceiling Tile</option>
+                        <option value="concrete">Concrete</option>
+                        <option value="wood">Wood</option>
+                        <option value="metal">Metal Deck</option>
+                    </select>
+                </div>
+
+                <div class="section-title">Additional Elements</div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        + Windows
+                    </div>
+                    <div class="collapsible-content">
+                        <button class="add-btn" onclick="addWindow()">Add Window</button>
+                        <div id="windows-list" class="element-list"></div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        + Doors
+                    </div>
+                    <div class="collapsible-content">
+                        <button class="add-btn" onclick="addDoor()">Add Door</button>
+                        <div id="doors-list" class="element-list"></div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        + Custom Material
+                    </div>
+                    <div class="collapsible-content">
+                        <input type="text" id="custom-name" placeholder="Material Name" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+                        <div class="freq-label" style="text-align: left;">Absorption Coefficients:</div>
+                        <div class="custom-material-input">
+                            <div>
+                                <div class="freq-label">31.5 Hz</div>
+                                <input type="number" id="custom-31" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">63 Hz</div>
+                                <input type="number" id="custom-63" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">125 Hz</div>
+                                <input type="number" id="custom-125" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">250 Hz</div>
+                                <input type="number" id="custom-250" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">500 Hz</div>
+                                <input type="number" id="custom-500" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">1 kHz</div>
+                                <input type="number" id="custom-1k" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">2 kHz</div>
+                                <input type="number" id="custom-2k" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">4 kHz</div>
+                                <input type="number" id="custom-4k" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">8 kHz</div>
+                                <input type="number" id="custom-8k" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                            <div>
+                                <div class="freq-label">16 kHz</div>
+                                <input type="number" id="custom-16k" min="0" max="1" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+                        <input type="number" id="custom-area" placeholder="Surface Area (m²)" style="width: 100%; margin-top: 10px; padding: 5px;">
+                        <button class="add-btn" style="margin-top: 10px;" onclick="addCustomMaterial()">Add Custom Material</button>
+                        <div id="custom-list" class="element-list" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">Occupancy</div>
+                <div class="people-input">
+                    <label>Number of People:</label>
+                    <input type="number" id="people" value="0" min="0" max="100" step="1">
+                </div>
+
+                <button class="calculate-btn" onclick="calculate()">Calculate RT60</button>
+
+                <div class="results" id="results" style="display: none;">
+                    <h3>Analysis Results</h3>
+                    
+                    <div class="result-main">
+                        <div class="value" id="overall-rt">-</div>
+                        <div class="label">Overall RT60 (500Hz-1kHz avg)</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span>Room Volume</span>
+                        <span id="volume">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Total Surface Area</span>
+                        <span id="surface">-</span>
+                    </div>
+
+                    <table class="octave-table">
+                        <thead>
+                            <tr>
+                                <th>Frequency</th>
+                                <th>RT60 (s)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="octave-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="visualization-panel">
+                <div id="canvas-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Extended material absorption coefficients (31.5Hz, 63Hz, 125Hz, 250Hz, 500Hz, 1kHz, 2kHz, 4kHz, 8kHz, 16kHz)
+        const materials = {
+            // Ceiling materials
+            gypsum: {
+                name: 'Gypsum Board',
+                coefficients: [0.08, 0.15, 0.29, 0.10, 0.05, 0.04, 0.07, 0.09, 0.10, 0.11],
+                pattern: 'solid'
+            },
+            acoustic_tile: {
+                name: 'Acoustic Ceiling Tile',
+                coefficients: [0.20, 0.35, 0.50, 0.70, 0.80, 0.85, 0.75, 0.70, 0.65, 0.60],
+                pattern: 'dots'
+            },
+            concrete: {
+                name: 'Concrete',
+                coefficients: [0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02],
+                pattern: 'cross'
+            },
+            wood: {
+                name: 'Wood',
+                coefficients: [0.10, 0.12, 0.15, 0.11, 0.10, 0.07, 0.06, 0.07, 0.08, 0.08],
+                pattern: 'lines'
+            },
+            metal: {
+                name: 'Metal Deck',
+                coefficients: [0.02, 0.03, 0.05, 0.10, 0.10, 0.10, 0.07, 0.05, 0.05, 0.05],
+                pattern: 'diagonal'
+            },
+            // Wall materials
+            brick: {
+                name: 'Brick',
+                coefficients: [0.02, 0.02, 0.03, 0.03, 0.03, 0.04, 0.05, 0.07, 0.07, 0.08],
+                pattern: 'brick'
+            },
+            glass: {
+                name: 'Glass',
+                coefficients: [0.08, 0.12, 0.18, 0.06, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02],
+                pattern: 'solid'
+            },
+            fabric: {
+                name: 'Fabric Panels',
+                coefficients: [0.10, 0.20, 0.30, 0.45, 0.65, 0.75, 0.80, 0.80, 0.75, 0.70],
+                pattern: 'mesh'
+            },
+            // Floor materials
+            carpet: {
+                name: 'Carpet',
+                coefficients: [0.01, 0.01, 0.02, 0.06, 0.14, 0.37, 0.60, 0.65, 0.70, 0.73],
+                pattern: 'stipple'
+            },
+            hardwood: {
+                name: 'Hardwood',
+                coefficients: [0.03, 0.03, 0.04, 0.04, 0.07, 0.06, 0.06, 0.07, 0.07, 0.07],
+                pattern: 'lines'
+            },
+            tile: {
+                name: 'Ceramic Tile',
+                coefficients: [0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02],
+                pattern: 'grid'
+            },
+            vinyl: {
+                name: 'Vinyl/Linoleum',
+                coefficients: [0.02, 0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.02, 0.02, 0.02],
+                pattern: 'solid'
+            },
+            // Additional elements
+            window: {
+                name: 'Window',
+                coefficients: [0.10, 0.20, 0.35, 0.25, 0.18, 0.12, 0.07, 0.04, 0.03, 0.03],
+                pattern: 'solid'
+            },
+            door_wood: {
+                name: 'Wood Door',
+                coefficients: [0.08, 0.10, 0.14, 0.10, 0.06, 0.08, 0.10, 0.10, 0.10, 0.10],
+                pattern: 'lines'
+            },
+            door_metal: {
+                name: 'Metal Door',
+                coefficients: [0.10, 0.15, 0.20, 0.15, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10],
+                pattern: 'solid'
+            },
+            none: {
+                name: 'None',
+                coefficients: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                pattern: 'solid'
+            }
+        };
+
+        // Person absorption (in Sabins per person) - extended to 10 bands
+        const personAbsorption = [0.12, 0.18, 0.25, 0.35, 0.42, 0.46, 0.50, 0.50, 0.50, 0.48];
+
+        // Store additional elements
+        let windows = [];
+        let doors = [];
+        let customMaterials = [];
+
+        // Three.js setup
+        let scene, camera, renderer;
+        const roomGroup = new THREE.Group();
+        const peopleGroup = new THREE.Group();
+        const elementsGroup = new THREE.Group();
+
+        function toggleCollapsible(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+            header.textContent = content.classList.contains('active') ? 
+                '- ' + header.textContent.substring(2) : 
+                '+ ' + header.textContent.substring(2);
+        }
+
+        function addWindow() {
+            const id = Date.now();
+            const wallOptions = ['front', 'back', 'left', 'right'];
+            windows.push({ 
+                id, 
+                width: 2, 
+                height: 1.5, 
+                wall: wallOptions[windows.length % 4] 
+            });
+            updateElementsList();
+            updateRoom();
+        }
+
+        function addDoor() {
+            const id = Date.now();
+            const wallOptions = ['front', 'back', 'left', 'right'];
+            doors.push({ 
+                id, 
+                width: 1, 
+                height: 2.1, 
+                wall: wallOptions[doors.length % 4], 
+                type: 'wood' 
+            });
+            updateElementsList();
+            updateRoom();
+        }
+
+        function addCustomMaterial() {
+            const name = document.getElementById('custom-name').value;
+            const area = parseFloat(document.getElementById('custom-area').value);
+            
+            if (!name || !area) {
+                alert('Please enter material name and surface area');
+                return;
+            }
+
+            const coefficients = [
+                parseFloat(document.getElementById('custom-31').value) || 0,
+                parseFloat(document.getElementById('custom-63').value) || 0,
+                parseFloat(document.getElementById('custom-125').value) || 0,
+                parseFloat(document.getElementById('custom-250').value) || 0,
+                parseFloat(document.getElementById('custom-500').value) || 0,
+                parseFloat(document.getElementById('custom-1k').value) || 0,
+                parseFloat(document.getElementById('custom-2k').value) || 0,
+                parseFloat(document.getElementById('custom-4k').value) || 0,
+                parseFloat(document.getElementById('custom-8k').value) || 0,
+                parseFloat(document.getElementById('custom-16k').value) || 0
+            ];
+
+            const id = Date.now();
+            customMaterials.push({ id, name, area, coefficients });
+            
+            // Clear inputs
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-area').value = '';
+            ['custom-31', 'custom-63', 'custom-125', 'custom-250', 'custom-500', 
+             'custom-1k', 'custom-2k', 'custom-4k', 'custom-8k', 'custom-16k'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            updateElementsList();
+        }
+
+        function removeElement(type, id) {
+            if (type === 'window') {
+                windows = windows.filter(w => w.id !== id);
+            } else if (type === 'door') {
+                doors = doors.filter(d => d.id !== id);
+            } else if (type === 'custom') {
+                customMaterials = customMaterials.filter(c => c.id !== id);
+            }
+            updateElementsList();
+            updateRoom();
+        }
+
+        function updateElementsList() {
+            // Update windows list
+            const windowsList = document.getElementById('windows-list');
+            windowsList.innerHTML = windows.map(w => `
+                <div class="element-item">
+                    <span class="wall-label">Wall:</span>
+                    <select onchange="windows.find(win => win.id === ${w.id}).wall = this.value; updateRoom()">
+                        <option value="front" ${w.wall === 'front' ? 'selected' : ''}>Front</option>
+                        <option value="back" ${w.wall === 'back' ? 'selected' : ''}>Back</option>
+                        <option value="left" ${w.wall === 'left' ? 'selected' : ''}>Left</option>
+                        <option value="right" ${w.wall === 'right' ? 'selected' : ''}>Right</option>
+                    </select>
+                    <span>W:</span>
+                    <input type="number" value="${w.width}" min="0.5" max="10" step="0.1" 
+                        onchange="windows.find(win => win.id === ${w.id}).width = parseFloat(this.value); updateRoom()">
+                    <span>H:</span>
+                    <input type="number" value="${w.height}" min="0.5" max="10" step="0.1"
+                        onchange="windows.find(win => win.id === ${w.id}).height = parseFloat(this.value); updateRoom()">
+                    <button class="remove-btn" onclick="removeElement('window', ${w.id})">X</button>
+                </div>
+            `).join('');
+
+            // Update doors list
+            const doorsList = document.getElementById('doors-list');
+            doorsList.innerHTML = doors.map(d => `
+                <div class="element-item">
+                    <span class="wall-label">Wall:</span>
+                    <select onchange="doors.find(door => door.id === ${d.id}).wall = this.value; updateRoom()">
+                        <option value="front" ${d.wall === 'front' ? 'selected' : ''}>Front</option>
+                        <option value="back" ${d.wall === 'back' ? 'selected' : ''}>Back</option>
+                        <option value="left" ${d.wall === 'left' ? 'selected' : ''}>Left</option>
+                        <option value="right" ${d.wall === 'right' ? 'selected' : ''}>Right</option>
+                    </select>
+                    <span>W:</span>
+                    <input type="number" value="${d.width}" min="0.5" max="3" step="0.1"
+                        onchange="doors.find(door => door.id === ${d.id}).width = parseFloat(this.value); updateRoom()">
+                    <span>H:</span>
+                    <input type="number" value="${d.height}" min="1.5" max="3" step="0.1"
+                        onchange="doors.find(door => door.id === ${d.id}).height = parseFloat(this.value); updateRoom()">
+                    <select onchange="doors.find(door => door.id === ${d.id}).type = this.value">
+                        <option value="wood" ${d.type === 'wood' ? 'selected' : ''}>Wood</option>
+                        <option value="metal" ${d.type === 'metal' ? 'selected' : ''}>Metal</option>
+                    </select>
+                    <button class="remove-btn" onclick="removeElement('door', ${d.id})">X</button>
+                </div>
+            `).join('');
+
+            // Update custom materials list
+            const customList = document.getElementById('custom-list');
+            customList.innerHTML = customMaterials.map(c => `
+                <div class="element-item">
+                    <span>${c.name}: ${c.area} m²</span>
+                    <button class="remove-btn" onclick="removeElement('custom', ${c.id})">X</button>
+                </div>
+            `).join('');
+        }
+
+        function createHatchTexture(pattern) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+
+            switch(pattern) {
+                case 'lines':
+                    for(let i = 0; i < 64; i += 8) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i, 64);
+                        ctx.stroke();
+                    }
+                    break;
+                case 'diagonal':
+                    for(let i = -64; i < 128; i += 8) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i + 64, 64);
+                        ctx.stroke();
+                    }
+                    break;
+                case 'cross':
+                    for(let i = 0; i < 64; i += 8) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i, 64);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, i);
+                        ctx.lineTo(64, i);
+                        ctx.stroke();
+                    }
+                    break;
+                case 'dots':
+                    for(let x = 4; x < 64; x += 8) {
+                        for(let y = 4; y < 64; y += 8) {
+                            ctx.beginPath();
+                            ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    break;
+                case 'brick':
+                    for(let y = 0; y < 64; y += 16) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(64, y);
+                        ctx.stroke();
+                        for(let x = (y % 32 === 0 ? 0 : 32); x < 64; x += 32) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, y);
+                            ctx.lineTo(x, y + 16);
+                            ctx.stroke();
+                        }
+                    }
+                    break;
+                case 'mesh':
+                    for(let i = 0; i < 64; i += 4) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i, 64);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, i);
+                        ctx.lineTo(64, i);
+                        ctx.stroke();
+                    }
+                    break;
+                case 'stipple':
+                    for(let x = 0; x < 64; x += 2) {
+                        for(let y = 0; y < 64; y += 2) {
+                            if(Math.random() > 0.5) {
+                                ctx.fillRect(x, y, 1, 1);
+                            }
+                        }
+                    }
+                    break;
+                case 'grid':
+                    for(let i = 0; i < 64; i += 16) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i, 64);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, i);
+                        ctx.lineTo(64, i);
+                        ctx.stroke();
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.repeat.set(2, 2);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+
+            const container = document.getElementById('canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Isometric camera setup
+            const aspect = width / height;
+            const d = 20;
+            camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 0.1, 1000);
+            
+            // Set up isometric view
+            camera.position.set(20, 20, 20);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            container.appendChild(renderer.domElement);
+
+            // Simple lighting for black and white aesthetic
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
+            directionalLight.position.set(10, 10, 10);
+            scene.add(directionalLight);
+
+            scene.add(roomGroup);
+            scene.add(elementsGroup);
+            scene.add(peopleGroup);
+            
+            updateRoom();
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                const aspect = width / height;
+                const d = 20;
+                camera.left = -d * aspect;
+                camera.right = d * aspect;
+                camera.top = d;
+                camera.bottom = -d;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            });
+        }
+
+        function updateRoom() {
+            // Clear existing geometry
+            while(roomGroup.children.length > 0) {
+                roomGroup.remove(roomGroup.children[0]);
+            }
+            while(elementsGroup.children.length > 0) {
+                elementsGroup.remove(elementsGroup.children[0]);
+            }
+            while(peopleGroup.children.length > 0) {
+                peopleGroup.remove(peopleGroup.children[0]);
+            }
+
+            const length = parseFloat(document.getElementById('length').value) || 10;
+            const width = parseFloat(document.getElementById('width').value) || 8;
+            const height = parseFloat(document.getElementById('height').value) || 3;
+            const numPeople = parseInt(document.getElementById('people').value) || 0;
+
+            // Get materials
+            const ceilingMat = materials[document.getElementById('ceiling').value];
+            const wallMat1 = materials[document.getElementById('walls-1').value];
+            const floorMat1 = materials[document.getElementById('floor-1').value];
+
+            // Create materials with hatching
+            const wallMaterial = new THREE.MeshBasicMaterial({ 
+                map: createHatchTexture(wallMat1.pattern),
+                transparent: true, 
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+
+            const floorMaterial = new THREE.MeshBasicMaterial({ 
+                map: createHatchTexture(floorMat1.pattern),
+                transparent: true, 
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+
+            const ceilingMaterial = new THREE.MeshBasicMaterial({ 
+                map: createHatchTexture(ceilingMat.pattern),
+                transparent: true, 
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+
+            const edgeMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x000000,
+                linewidth: 2
+            });
+
+            // Create room surfaces
+            const floorGeometry = new THREE.PlaneGeometry(length, width);
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = -height / 2;
+            roomGroup.add(floor);
+
+            const ceiling = new THREE.Mesh(floorGeometry, ceilingMaterial);
+            ceiling.rotation.x = -Math.PI / 2;
+            ceiling.position.y = height / 2;
+            roomGroup.add(ceiling);
+
+            const frontWallGeometry = new THREE.PlaneGeometry(length, height);
+            const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+            frontWall.position.z = width / 2;
+            roomGroup.add(frontWall);
+
+            const backWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+            backWall.position.z = -width / 2;
+            roomGroup.add(backWall);
+
+            const sideWallGeometry = new THREE.PlaneGeometry(width, height);
+            const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+            leftWall.rotation.y = Math.PI / 2;
+            leftWall.position.x = -length / 2;
+            roomGroup.add(leftWall);
+
+            const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+            rightWall.rotation.y = Math.PI / 2;
+            rightWall.position.x = length / 2;
+            roomGroup.add(rightWall);
+
+            // Add edges
+            const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(length, height, width));
+            const line = new THREE.LineSegments(edges, edgeMaterial);
+            roomGroup.add(line);
+
+            // Add windows at specified locations
+            const windowMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x000000, 
+                transparent: true, 
+                opacity: 0.05
+            });
+            
+            windows.forEach((w, index) => {
+                const windowGeometry = new THREE.PlaneGeometry(w.width, w.height);
+                const windowMesh = new THREE.Mesh(windowGeometry, windowMaterial);
+                
+                // Position based on wall
+                const offset = ((index + 1) / (windows.length + 1) - 0.5);
+                if (w.wall === 'front') {
+                    windowMesh.position.set(offset * length, 0, width/2 + 0.01);
+                } else if (w.wall === 'back') {
+                    windowMesh.position.set(offset * length, 0, -width/2 - 0.01);
+                    windowMesh.rotation.y = Math.PI;
+                } else if (w.wall === 'left') {
+                    windowMesh.position.set(-length/2 - 0.01, 0, offset * width);
+                    windowMesh.rotation.y = Math.PI/2;
+                } else if (w.wall === 'right') {
+                    windowMesh.position.set(length/2 + 0.01, 0, offset * width);
+                    windowMesh.rotation.y = -Math.PI/2;
+                }
+                
+                elementsGroup.add(windowMesh);
+                
+                // Add window frame
+                const windowEdges = new THREE.EdgesGeometry(windowGeometry);
+                const windowFrame = new THREE.LineSegments(windowEdges, edgeMaterial);
+                windowFrame.position.copy(windowMesh.position);
+                windowFrame.rotation.copy(windowMesh.rotation);
+                elementsGroup.add(windowFrame);
+            });
+
+            // Add doors at specified locations
+            const doorMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x333333, 
+                transparent: true, 
+                opacity: 0.3
+            });
+            
+            doors.forEach((d, index) => {
+                const doorGeometry = new THREE.PlaneGeometry(d.width, d.height);
+                const doorMesh = new THREE.Mesh(doorGeometry, doorMaterial);
+                
+                // Position based on wall
+                const offset = ((index + 1) / (doors.length + 1) - 0.5);
+                if (d.wall === 'front') {
+                    doorMesh.position.set(offset * length, -height/2 + d.height/2, width/2 + 0.01);
+                } else if (d.wall === 'back') {
+                    doorMesh.position.set(offset * length, -height/2 + d.height/2, -width/2 - 0.01);
+                    doorMesh.rotation.y = Math.PI;
+                } else if (d.wall === 'left') {
+                    doorMesh.position.set(-length/2 - 0.01, -height/2 + d.height/2, offset * width);
+                    doorMesh.rotation.y = Math.PI/2;
+                } else if (d.wall === 'right') {
+                    doorMesh.position.set(length/2 + 0.01, -height/2 + d.height/2, offset * width);
+                    doorMesh.rotation.y = -Math.PI/2;
+                }
+                
+                elementsGroup.add(doorMesh);
+                
+                // Add door frame
+                const doorEdges = new THREE.EdgesGeometry(doorGeometry);
+                const doorFrame = new THREE.LineSegments(doorEdges, edgeMaterial);
+                doorFrame.position.copy(doorMesh.position);
+                doorFrame.rotation.copy(doorMesh.rotation);
+                elementsGroup.add(doorFrame);
+            });
+
+            // Add people as more realistic figures with fun variations
+            const personMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x000000, 
+                side: THREE.DoubleSide
+            });
+            
+            for (let i = 0; i < numPeople; i++) {
+                const personGroup = new THREE.Group();
+                
+                // Head
+                const headGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                const head = new THREE.Mesh(headGeometry, personMaterial);
+                head.position.y = 1.65;
+                personGroup.add(head);
+                
+                // Body
+                const bodyGeometry = new THREE.CylinderGeometry(0.25, 0.2, 0.8);
+                const body = new THREE.Mesh(bodyGeometry, personMaterial);
+                body.position.y = 1.0;
+                personGroup.add(body);
+                
+                // Legs
+                const legGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.8);
+                const leftLeg = new THREE.Mesh(legGeometry, personMaterial);
+                leftLeg.position.set(-0.1, 0.4, 0);
+                personGroup.add(leftLeg);
+                
+                const rightLeg = new THREE.Mesh(legGeometry, personMaterial);
+                rightLeg.position.set(0.1, 0.4, 0);
+                personGroup.add(rightLeg);
+                
+                // Arms
+                const armGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.6);
+                const leftArm = new THREE.Mesh(armGeometry, personMaterial);
+                leftArm.position.set(-0.3, 1.2, 0);
+                leftArm.rotation.z = Math.PI / 6;
+                personGroup.add(leftArm);
+                
+                const rightArm = new THREE.Mesh(armGeometry, personMaterial);
+                rightArm.position.set(0.3, 1.2, 0);
+                rightArm.rotation.z = -Math.PI / 6;
+                personGroup.add(rightArm);
+                
+                // Add random accessories
+                const accessoryType = Math.random();
+                
+                if (accessoryType < 0.25) {
+                    // Wizard hat
+                    const hatGeometry = new THREE.ConeGeometry(0.25, 0.5, 8);
+                    const hat = new THREE.Mesh(hatGeometry, personMaterial);
+                    hat.position.y = 2.0;
+                    personGroup.add(hat);
+                    
+                    // Hat brim
+                    const brimGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.05);
+                    const brim = new THREE.Mesh(brimGeometry, personMaterial);
+                    brim.position.y = 1.8;
+                    personGroup.add(brim);
+                } else if (accessoryType < 0.5) {
+                    // Headphones
+                    const headbandGeometry = new THREE.TorusGeometry(0.18, 0.02, 4, 12, Math.PI);
+                    const headband = new THREE.Mesh(headbandGeometry, personMaterial);
+                    headband.position.y = 1.75;
+                    headband.rotation.z = Math.PI;
+                    personGroup.add(headband);
+                    
+                    // Ear cups
+                    const cupGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.04);
+                    const leftCup = new THREE.Mesh(cupGeometry, personMaterial);
+                    leftCup.position.set(-0.18, 1.65, 0);
+                    leftCup.rotation.z = Math.PI / 2;
+                    personGroup.add(leftCup);
+                    
+                    const rightCup = new THREE.Mesh(cupGeometry, personMaterial);
+                    rightCup.position.set(0.18, 1.65, 0);
+                    rightCup.rotation.z = Math.PI / 2;
+                    personGroup.add(rightCup);
+                } else if (accessoryType < 0.75) {
+                    // Hammer in hand
+                    const handleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.4);
+                    const handle = new THREE.Mesh(handleGeometry, personMaterial);
+                    handle.position.set(0.35, 0.9, 0.1);
+                    handle.rotation.z = -Math.PI / 4;
+                    personGroup.add(handle);
+                    
+                    const hammerHeadGeometry = new THREE.BoxGeometry(0.15, 0.08, 0.08);
+                    const hammerHead = new THREE.Mesh(hammerHeadGeometry, personMaterial);
+                    hammerHead.position.set(0.45, 1.05, 0.1);
+                    hammerHead.rotation.z = -Math.PI / 4;
+                    personGroup.add(hammerHead);
+                }
+                
+                // Random position in room (avoiding walls)
+                const margin = 0.8; // Keep away from walls
+                personGroup.position.x = (Math.random() - 0.5) * (length - margin * 2);
+                personGroup.position.z = (Math.random() - 0.5) * (width - margin * 2);
+                personGroup.position.y = -height / 2 + 0.05; // Raise slightly more from floor
+                
+                // Random rotation for variety
+                personGroup.rotation.y = Math.random() * Math.PI * 2;
+                
+                peopleGroup.add(personGroup);
+            }
+
+            // Adjust camera
+            const maxDim = Math.max(length, width, height);
+            const d = maxDim * 0.8;
+            const aspect = renderer.domElement.width / renderer.domElement.height;
+            camera.left = -d * aspect;
+            camera.right = d * aspect;
+            camera.top = d;
+            camera.bottom = -d;
+            camera.updateProjectionMatrix();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Slow rotation
+            roomGroup.rotation.y += 0.0008;
+            elementsGroup.rotation.y += 0.0008;
+            peopleGroup.rotation.y += 0.0008;
+            
+            renderer.render(scene, camera);
+        }
+
+        function calculate() {
+            const length = parseFloat(document.getElementById('length').value) || 10;
+            const width = parseFloat(document.getElementById('width').value) || 8;
+            const height = parseFloat(document.getElementById('height').value) || 3;
+            const numPeople = parseInt(document.getElementById('people').value) || 0;
+
+            // Get materials and percentages
+            const ceilingMat = materials[document.getElementById('ceiling').value];
+            
+            const wallMat1 = materials[document.getElementById('walls-1').value];
+            const wallMat2 = materials[document.getElementById('walls-2').value];
+            const wallPercent1 = parseFloat(document.getElementById('wall-percent-1').value) / 100 || 0;
+            const wallPercent2 = parseFloat(document.getElementById('wall-percent-2').value) / 100 || 0;
+            
+            const floorMat1 = materials[document.getElementById('floor-1').value];
+            const floorMat2 = materials[document.getElementById('floor-2').value];
+            const floorPercent1 = parseFloat(document.getElementById('floor-percent-1').value) / 100 || 0;
+            const floorPercent2 = parseFloat(document.getElementById('floor-percent-2').value) / 100 || 0;
+
+            // Calculate room properties
+            const volume = length * width * height;
+            const ceilingArea = length * width;
+            const floorArea = length * width;
+            const wallArea = 2 * (length * height + width * height);
+
+            // Calculate area reductions for windows and doors
+            const windowArea = windows.reduce((sum, w) => sum + (w.width * w.height), 0);
+            const doorArea = doors.reduce((sum, d) => sum + (d.width * d.height), 0);
+            const adjustedWallArea = wallArea - windowArea - doorArea;
+
+            const totalSurfaceArea = ceilingArea + floorArea + wallArea;
+
+            // Calculate RT60 for each octave band
+            const frequencies = ['31.5 Hz', '63 Hz', '125 Hz', '250 Hz', '500 Hz', '1 kHz', '2 kHz', '4 kHz', '8 kHz', '16 kHz'];
+            const rt60Values = [];
+
+            for (let i = 0; i < 10; i++) {
+                // Base absorption with percentage splits
+                let totalAbsorption = ceilingArea * ceilingMat.coefficients[i];
+                
+                // Walls with percentage split
+                totalAbsorption += adjustedWallArea * (
+                    wallPercent1 * wallMat1.coefficients[i] + 
+                    wallPercent2 * wallMat2.coefficients[i]
+                );
+                
+                // Floor with percentage split
+                totalAbsorption += floorArea * (
+                    floorPercent1 * floorMat1.coefficients[i] + 
+                    floorPercent2 * floorMat2.coefficients[i]
+                );
+
+                // Add window absorption
+                windows.forEach(w => {
+                    totalAbsorption += (w.width * w.height) * materials.window.coefficients[i];
+                });
+
+                // Add door absorption
+                doors.forEach(d => {
+                    const doorMat = d.type === 'wood' ? materials.door_wood : materials.door_metal;
+                    totalAbsorption += (d.width * d.height) * doorMat.coefficients[i];
+                });
+
+                // Add custom material absorption
+                customMaterials.forEach(c => {
+                    totalAbsorption += c.area * c.coefficients[i];
+                });
+
+                // Add people absorption
+                totalAbsorption += numPeople * personAbsorption[i];
+
+                // Sabine's formula: RT60 = 0.161 * V / A
+                const rt60 = 0.161 * volume / totalAbsorption;
+                rt60Values.push(rt60);
+            }
+
+            // Calculate overall RT60 (average of 500Hz and 1kHz)
+            const overallRT60 = (rt60Values[4] + rt60Values[5]) / 2;
+
+            // Update display
+            document.getElementById('overall-rt').textContent = overallRT60.toFixed(2) + ' s';
+            document.getElementById('volume').textContent = volume.toFixed(0) + ' m³';
+            document.getElementById('surface').textContent = totalSurfaceArea.toFixed(0) + ' m²';
+
+            // Update octave band table
+            const tableBody = document.getElementById('octave-table-body');
+            tableBody.innerHTML = '';
+            
+            frequencies.forEach((freq, i) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${freq}</td>
+                    <td><strong>${rt60Values[i].toFixed(2)}</strong></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            document.getElementById('results').style.display = 'block';
+            
+            // Update 3D visualization
+            updateRoom();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initThreeJS();
+            calculate();
+        });
+
+        // Add event listeners for real-time updates
+        ['length', 'width', 'height', 'ceiling', 'walls-1', 'walls-2', 'floor-1', 'floor-2', 
+         'wall-percent-1', 'wall-percent-2', 'floor-percent-1', 'floor-percent-2', 'people'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => {
+                    updateRoom();
+                });
+            }
+        });
+
+        // Ensure percentages add up to 100%
+        document.getElementById('wall-percent-1').addEventListener('input', (e) => {
+            document.getElementById('wall-percent-2').value = 100 - e.target.value;
+        });
+        document.getElementById('wall-percent-2').addEventListener('input', (e) => {
+            document.getElementById('wall-percent-1').value = 100 - e.target.value;
+        });
+        document.getElementById('floor-percent-1').addEventListener('input', (e) => {
+            document.getElementById('floor-percent-2').value = 100 - e.target.value;
+        });
+        document.getElementById('floor-percent-2').addEventListener('input', (e) => {
+            document.getElementById('floor-percent-1').value = 100 - e.target.value;
+        });
+    </script>
+</body>
+</html>
